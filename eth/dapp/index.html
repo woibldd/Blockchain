@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/web3/1.7.1/web3.min.js"></script>
+    <script src="./abi/erc20.js"></script>
+    <script src="./abi/poolABI.js"></script>
+    <style>
+      body > div {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        margin-top: 30px;
+      }
+      input {
+        height: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>链接</h1>
+      <button data-method="connect">connect</button><span id="account">--</span>
+    </div>
+    <div>
+      <h1>切换网络</h1>
+      chainId :<input id="chainId" type="text" />
+      <button data-method="wallet_switchEthereumChain">wallet_switchEthereumChain</button>
+    </div>
+    <div>
+      <h1>转账EVM</h1>
+      from:<input id="from" type="text" /> to:<input id="to" type="text" /> amount:<input id="amount" type="number" /> 代币contract：<input id="contract" value="" type="text" />
+      <button data-method="sendTransaction">sendTranstion</button>
+    </div>
+
+    <div>
+      <h1>批量转账</h1>
+      地址：
+      <textarea name="" id="addresses" cols="30" rows="10">
+        0xc82D88971c1cC94c1e0821aDD449a4655C98E2BA,0xE4f2edc13a6F142Ac18D53d15f93F464025c980a
+      </textarea>
+      金额：
+      <textarea name="" id="amounts" cols="30" rows="10">
+        0.01,0.01
+    </textarea
+      >
+      <button data-method="sendMultTransaction">sendMultTransaction</button>
+    </div>
+
+    <script type="module">
+      function transfer16(val = 0) {
+        val = isNaN(Number(val)) ? 1 : Number(val);
+        return "0x" + val.toString(16);
+      }
+      class Wallet {
+        constructor() {
+          this.state = {
+            address: "",
+            chainId: window.ethereum ? ethereum.chainId : "",
+          };
+          this._config = {
+            supportNet: [{}],
+            multSendCotract: "0xB43a99281a63CB861F8C2ef8b0e0D3C74B74Dd3F", // 批量转账合约地址
+          };
+        }
+
+        get chainId() {
+          return this.state.chainId;
+        }
+        set chainId(chainId) {
+          this.state.chainId = chainId;
+          document.querySelector("#chainId").value = String(this.state.chainId);
+        }
+        get selectedAddress() {
+          return this.state.address;
+        }
+        set selectedAddress(val) {
+          this.state.address = val;
+          document.querySelector("#account").innerHTML = this.state.address;
+        }
+
+        async connect() {
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          this.web3 = new Web3(ethereum);
+
+          const [address] = await this.web3.eth.getAccounts();
+          const chainId = await this.web3.eth.getChainId();
+          this.selectedAddress = address;
+          this.chainId = chainId;
+          this.initEvent();
+        }
+        async switchChain(chainId) {
+          chainId = transfer16(chainId);
+          try {
+            await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId }] });
+          } catch (error) {
+            await ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId,
+                  chainName: "FTM",
+                  rpcUrls: ["https://ftm.bitkeep.vip/09044be328d4c02bd3d832b8433d97ce"],
+                  nativeCurrency: {
+                    name: "FTM",
+                    symbol: "FTM",
+                    decimals: 18,
+                  },
+                },
+              ],
+            });
+          }
+        }
+        initEvent() {
+          ethereum.removeAllListeners();
+          ethereum.on("accountsChanged", (address) => {
+            this.selectedAddress = address;
+          });
+          ethereum.on("chainChanged", async (chainId) => {
+            chainId = await this.web3.eth.getChainId();
+            this.chainId = chainId;
+          });
+        }
+        sendTransaction(data) {
+          this.web3.eth.sendTransaction({
+            from: data.from,
+            to: data.to,
+            value: this.web3.utils.toWei(data.value, "ether"),
+          });
+        }
+        //批量转账
+        async sendMultTransaction(data) {
+          let { addresses, amounts } = data;
+          amounts = amounts.map((num) => this.web3.utils.toWei(num, "ether"));
+          const allAmount = amounts.reduce((total, val) => {
+            total = val - 0 + total;
+            return total;
+          }, 0);
+          //abi 作用只是为了方便调用 方法调用更加可读 abi也是可以不需要的
+          //MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
+          const MultContract = new this.web3.eth.Contract(poolABI, "0x0de83d99490e1A99631A4d75C48aF5D5F29A6ceB", {
+            from: this.selectedAddress,
+          });
+          window.MultContract = MultContract;
+
+          // call查询数据不上链  send上链需要fee  encodeABI 编译成进制码64位没有其他操作
+           MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
+          const resultData = await MultContract.methods.multisendToken("0x000000000000000000000000000000000000bEEF", addresses, amounts).send({
+            from: this.selectedAddress,
+            // gas: "",
+            value: allAmount,
+          });
+        // const resultData = await MultContract.methods.multisendToken("0x000000000000000000000000000000000000bEEF", addresses, amounts).encodeABI({
+        //     from: this.selectedAddress,
+        //     // gas: "",
+        //     value: allAmount,
+        //   });
+    
+
+          //   const tranferData = {
+          //     from: window.ethereum.selectedAddress,
+          //     to: this._config.multSendCotract, //(可选）交易消息的目标地址，如果是合约创建，则不填.
+          //     value: amounts.reduce((total, val) => {
+          //       total = val - 0 + total;
+          //       return total;
+          //     }, 0),
+          //     data: resultData,
+          //     gas: 300000,
+          //   };
+
+          //   const txid = await this.web3.eth.sendTransaction(tranferData);
+          //   console.log({ resultData, tranferData, txid });
+        }
+      }
+
+      //ui btn click
+      const btnsMethods = Array.from(document.querySelectorAll("button[data-method]"));
+      btnsMethods.forEach((el) => {
+        el.onclick = async function (event) {
+          const { method } = event.target.dataset;
+          switch (method) {
+            case "connect":
+              await wallet.connect();
+            case "wallet_switchEthereumChain":
+              wallet.switchChain(document.querySelector("#chainId").value);
+              break;
+            case "sendTransaction":
+              wallet.sendTransaction({
+                from: document.querySelector("#from").value,
+                to: document.querySelector("#to").value,
+                value: document.querySelector("#amount").value,
+                contract: document.querySelector("#contract").value,
+              });
+            case "sendMultTransaction":
+              let addresses = document.querySelector("#addresses").value.trim().replace(/ /g, "").replace(/\n\r/g, "");
+              addresses = addresses.split(",");
+              let amounts = document.querySelector("#amounts").value.trim().replace(/ /g, "").replace(/\n\r/g, "");
+              amounts = amounts.split(",");
+
+              wallet.sendMultTransaction({
+                from: this.address,
+                addresses,
+                amounts,
+              });
+              break;
+              break;
+              break;
+          }
+        };
+      });
+
+      //init
+      const wallet = new Wallet();
+      wallet.connect();
+      window.wallet = wallet;
+
+      //doc
+
+      //   https://metamask.github.io/api-playground/api-documentation/#wallet_switchEthereumChain
+    </script>
+  </body>
+</html>
