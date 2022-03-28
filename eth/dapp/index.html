@@ -38,6 +38,7 @@
 
     <div>
       <h1>批量转账</h1>
+      批量转账合约contract：<input id="mltcontract" value="0x6f7b49ea570a9aeb19d95dda6268fb35263561c2" type="text" /> 代币contract：<input id="mltTokencontract" value="0x2ae7cb4c8bbd1fd34edc3a93bf4a4eed8ea5d89d" type="text" />
       地址：
       <textarea name="" id="addresses" cols="30" rows="10">
         0xc82D88971c1cC94c1e0821aDD449a4655C98E2BA,0xE4f2edc13a6F142Ac18D53d15f93F464025c980a
@@ -63,7 +64,13 @@
           };
           this._config = {
             supportNet: [{}],
-            multSendCotract: "0xB43a99281a63CB861F8C2ef8b0e0D3C74B74Dd3F", // 批量转账合约地址
+            multSendCotractMap:{
+                "128": "0x6f7b49ea570a9aeb19d95dda6268fb35263561c2"
+            },
+            multSendCotract: "0xa8d73d4e771991e849284b7d2e6662632dffd368",
+            // 批量转账合约 批量转账ropsten合约地址: 0xa8d73d4e771991e849284b7d2e6662632dffd368
+            // ht 0x6f7b49ea570a9aeb19d95dda6268fb35263561c2
+            // multSendCotract: "0xB43a99281a63CB861F8C2ef8b0e0D3C74B74Dd3F", // 批量转账合约地址
           };
         }
 
@@ -133,46 +140,58 @@
         }
         //批量转账
         async sendMultTransaction(data) {
-          let { addresses, amounts } = data;
+          let { addresses, amounts, mltcontract, contract} = data;
           amounts = amounts.map((num) => this.web3.utils.toWei(num, "ether"));
+
           const allAmount = amounts.reduce((total, val) => {
             total = val - 0 + total;
             return total;
           }, 0);
+
+
           //abi 作用只是为了方便调用 方法调用更加可读 abi也是可以不需要的
           //MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
-          const MultContract = new this.web3.eth.Contract(poolABI, "0x0de83d99490e1A99631A4d75C48aF5D5F29A6ceB", {
+          const MultContract = new this.web3.eth.Contract(poolABI, mltcontract || this._config.multSendCotract, {
             from: this.selectedAddress,
           });
+
           window.MultContract = MultContract;
 
-          // call查询数据不上链  send上链需要fee  encodeABI 编译成进制码64位没有其他操作
-           MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
-          const resultData = await MultContract.methods.multisendToken("0x000000000000000000000000000000000000bEEF", addresses, amounts).send({
+          if (contract) {
+            const Erc20APIContract = new this.web3.eth.Contract(Erc20API, contract, { from: this.selectedAddress });
+
+            const approveNum = await Erc20APIContract.methods.allowance(this.selectedAddress, mltcontract).call();
+            if (approveNum < allAmount) {
+              const approveTxid = await Erc20APIContract.methods.approve(mltcontract, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").send({
+                from: this.selectedAddress,
+                to: contract,
+                value: 0,
+              });
+              console.log({ approveTxid });
+            }
+          }
+
+          // call查询数据不上链  send上链需要fee   encodeABI 编译成进制码64位没有其他操作
+          //  MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
+          const resultData = await MultContract.methods.multisendToken(contract || "0x000000000000000000000000000000000000bEEF", addresses, amounts).send({
             from: this.selectedAddress,
             // gas: "",
-            value: allAmount,
+            value:  contract ? 0 : allAmount
           });
-        // const resultData = await MultContract.methods.multisendToken("0x000000000000000000000000000000000000bEEF", addresses, amounts).encodeABI({
-        //     from: this.selectedAddress,
-        //     // gas: "",
-        //     value: allAmount,
-        //   });
-    
 
-          //   const tranferData = {
-          //     from: window.ethereum.selectedAddress,
-          //     to: this._config.multSendCotract, //(可选）交易消息的目标地址，如果是合约创建，则不填.
-          //     value: amounts.reduce((total, val) => {
-          //       total = val - 0 + total;
-          //       return total;
-          //     }, 0),
-          //     data: resultData,
-          //     gas: 300000,
-          //   };
 
-          //   const txid = await this.web3.eth.sendTransaction(tranferData);
-          //   console.log({ resultData, tranferData, txid });
+          // const resultData = await MultContract.methods.multisendToken(data.contract || "0x000000000000000000000000000000000000bEEF", addresses, amounts).encodeABI();
+
+          // const tranferData = {
+          //   from: window.ethereum.selectedAddress,
+          //   to: data.mltcontract || this._config.multSendCotract, //(可选）交易消息的目标地址，如果是合约创建，则不填.
+          //   value: data.contract ? 0 : allAmount,
+          //   data: resultData,
+          //   // gas: 300000,
+          // };
+
+          // const txid = await this.web3.eth.sendTransaction(tranferData);
+          console.log({ resultData, tranferData, txid });
         }
       }
 
@@ -199,11 +218,15 @@
               addresses = addresses.split(",");
               let amounts = document.querySelector("#amounts").value.trim().replace(/ /g, "").replace(/\n\r/g, "");
               amounts = amounts.split(",");
+              let mltcontract = document.querySelector("#mltcontract").value.trim().replace(/ /g, "").replace(/\n\r/g, "");
+              let mltTokencontract = document.querySelector("#mltTokencontract").value.trim().replace(/ /g, "").replace(/\n\r/g, "");
 
               wallet.sendMultTransaction({
                 from: this.address,
                 addresses,
                 amounts,
+                contract: mltTokencontract,
+                mltcontract: mltcontract,
               });
               break;
               break;
