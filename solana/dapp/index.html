@@ -5,8 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
-    <script src="./node_modules/@solana/spl-token/lib/index.iife.js"></script>
+    <!-- <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script> -->
+    <!-- <script src="./node_modules/@solana/spl-token/lib/index.iife.js"></script> -->
+    <script src="./js/@solana/web3.js"></script>
+    <script src="./js/@solana/spl-token.js"></script>
     <style>
       body > div {
         display: flex;
@@ -134,7 +136,6 @@
             transaction.feePayer = fromPublicKey; //fee 支付用户
             transaction.recentBlockhash = (await connection.getRecentBlockhash("max")).blockhash; // 最新的交易hash
 
-            
             let signed = await window.solana.signTransaction(transaction);
 
             let txid = await connection.sendRawTransaction(signed.serialize());
