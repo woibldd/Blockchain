@@ -109,7 +109,7 @@
           // https://cloud.tencent.com/developer/ask/sof/384734 代币转账
           let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl(solana.network), "confirmed");
 
-          let WalletPublick = window.solana.publicKey;
+          // let WalletPublick = window.solana.publicKey;
           let fromPublicKey = new solanaWeb3.PublicKey(data.from);
           let toPublicKey = new solanaWeb3.PublicKey(data.to);
 
@@ -134,16 +134,15 @@
             transaction.feePayer = fromPublicKey; //fee 支付用户
             transaction.recentBlockhash = (await connection.getRecentBlockhash("max")).blockhash; // 最新的交易hash
 
+            
             let signed = await window.solana.signTransaction(transaction);
+
             let txid = await connection.sendRawTransaction(signed.serialize());
             return await connection.confirmTransaction(txid);
-              //   return window.solana.signTransaction(transactions);
           } catch (error) {
-            console.error(error)
+            console.error(error);
             alert(JSON.stringify(error));
           }
-
-        
         }
       }
 
