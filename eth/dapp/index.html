@@ -65,6 +65,7 @@
           };
           this._config = {
             supportNet: [{}],
+            // 代币合约
             tokensCotractMap: {
               128: {
                 "0x2ae7cb4c8bbd1fd34edc3a93bf4a4eed8ea5d89d": "usd", //正式
@@ -76,10 +77,12 @@
               128: "0x6f7b49ea570a9aeb19d95dda6268fb35263561c2", //正式
               3: "0xa8d73d4e771991e849284b7d2e6662632dffd368", // ropsten测试合约地址
             },
+
+
+
             multSendCotract: "0x6f7b49ea570a9aeb19d95dda6268fb35263561c2",
             // 批量转账合约 批量转账ropsten合约地址: 0xa8d73d4e771991e849284b7d2e6662632dffd368
             // ht 0x6f7b49ea570a9aeb19d95dda6268fb35263561c2
-
             // error
             // multSendCotract: "0xB43a99281a63CB861F8C2ef8b0e0D3C74B74Dd3F", // 批量转账合约地址
           };
@@ -103,7 +106,7 @@
         async connect() {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           this.web3 = new Web3(ethereum);
-          const [address] = await this.web3.eth.getAccounts();
+          const [ address ] = await this.web3.eth.getAccounts();
           const chainId = await this.web3.eth.getChainId();
           this.selectedAddress = address;
           this.chainId = chainId;
@@ -133,7 +136,7 @@
         }
         initEvent() {
           ethereum.removeAllListeners();
-          ethereum.on("accountsChanged", (address) => {
+          ethereum.on("accountsChanged", ([address]) => {
             this.selectedAddress = address;
           });
           ethereum.on("chainChanged", async (chainId) => {
@@ -165,18 +168,19 @@
               amounts: [],
             }
           );
+       
 
           //abi 作用只是为了方便调用 方法调用更加可读 abi也是可以不需要的
           //MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
           const MultContract = new this.web3.eth.Contract(poolABI, mltcontract || this._config.multSendCotract, {
             from: this.selectedAddress,
           });
-
           if (contract) {
             const Erc20APIContract = new this.web3.eth.Contract(Erc20API, contract, { from: this.selectedAddress });
 
             const approveNum = await Erc20APIContract.methods.allowance(this.selectedAddress, mltcontract).call();
             if (approveNum < allAmount) {
+       
               const approveTxid = await Erc20APIContract.methods.approve(mltcontract, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").send({
                 from: this.selectedAddress,
                 to: contract,
@@ -186,14 +190,18 @@
             }
           }
 
+          // 第一种
           // call查询数据不上链  send上链需要fee   encodeABI 编译成进制码64位没有其他操作
-          //  MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
+           MultContract.methods.multisendToken  == MultContract.methods[0x0b66f3f5]
           const resultData = await MultContract.methods.multisendToken(contract || "0x000000000000000000000000000000000000bEEF", addresses, amounts).send({
             from: this.selectedAddress,
             // gas: "",
             value: contract ? 0 : allAmount,
           });
+          return resultData.transactionHash;
 
+
+          // 第2中
           // const resultData = await MultContract.methods.multisendToken(data.contract || "0x000000000000000000000000000000000000bEEF", addresses, amounts).encodeABI();
 
           // const tranferData = {
@@ -206,8 +214,8 @@
 
           // const txid = await this.web3.eth.sendTransaction(tranferData);
           // console.log("result",{ resultData, tranferData,txid  });
-
-          return resultData.transactionHash;
+          // return txid.transactionHash
+    
         }
       }
 
