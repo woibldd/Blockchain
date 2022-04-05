@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/web3/1.7.1/web3.min.js"></script> -->
     <script src="./js/web3.min.js"></script>
     <script src="./abi/erc20.js"></script>
     <script src="./abi/poolABI.js"></script>
@@ -13,7 +12,7 @@
       body > div {
         display: flex;
         flex-direction: column;
-        max-width: 400px;
+        max-width: 500px;
         margin-top: 30px;
       }
       input {
@@ -39,11 +38,14 @@
 
     <div>
       <h1>批量转账</h1>
-      <pre style="padding:0;margin:0">
-        128: "0x6f7b49ea570a9aeb19d95dda6268fb35263561c2", //正式
-        3: "0xa8d73d4e771991e849284b7d2e6662632dffd368", // ropsten测试合约地址
+      <div style="padding: 0; margin: 0">
         暂没有发其他链的批量合约地址
-      </pre>
+        <br />
+        128: "0x6f7b49ea570a9aeb19d95dda6268fb35263561c2", //正式
+        <br />
+        3: "0xa8d73d4e771991e849284b7d2e6662632dffd368", // ropsten测试合约地址
+        <br />
+      </div>
       批量转账合约contract：<input id="mltcontract" value="0x6f7b49ea570a9aeb19d95dda6268fb35263561c2" type="text" /> 代币contract：<input id="mltTokencontract" value="0x2ae7cb4c8bbd1fd34edc3a93bf4a4eed8ea5d89d" type="text" />
       地址：
       <textarea name="" id="addresses" cols="30" rows="10">
@@ -159,7 +161,7 @@
 
             const decimalCall = Erc20APIContract.methods.decimals || Erc20APIContract.methods.DECIMALS;
             const decimals = await decimalCall().call();
-            const value = String(data.value * 10** Number(18))
+            const value = String(data.value * 10 ** Number(18));
 
             const result = Erc20APIContract.methods.transfer(data.to, value).send({ from: this.selectedAddress, value: 0 });
             return result;
@@ -284,8 +286,7 @@
       window.wallet = wallet;
 
       //doc
-
-      //   https://metamask.github.io/api-playground/api-documentation/#wallet_switchEthereumChain
+      //https://metamask.github.io/api-playground/api-documentation/#wallet_switchEthereumChain
     </script>
   </body>
 </html>

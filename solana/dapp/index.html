@@ -120,6 +120,7 @@
             if (data.contract) {
               let TokenPublicKey = new solanaWeb3.PublicKey(data.contract); //代币合约的PublicKey
               let TokenInstance = new splToken.Token(connection, TokenPublicKey, splToken.TOKEN_PROGRAM_ID, fromPublicKey);
+              //如果不存在请根据api创建用户地址 这里没有做创建地址
               let fromTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(fromPublicKey); //用户实际转账代币合约的PublicKey
               let toTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(toPublicKey); //用户实际转账代币合约的PublicKey
               transaction.add(splToken.Token.createTransferInstruction(splToken.TOKEN_PROGRAM_ID, fromTokenAccount.address, toTokenAccount.address, fromPublicKey, [], data.value * 1e6));
