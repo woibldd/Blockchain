@@ -16,6 +16,15 @@ Blockchain 区块链学习
     2. bitkeep切换到solana网络 
     3. 代币转账暂时不支持创建账户，只支持已经存在代币地址的账户（在链上已经有过资产的代币）
 
+
+  
+
+
+
+
+#resource
+  https://gitcode.net/mirrors/mokeychan/etherumForeverWords?utm_source=csdn_github_accelerator
+
    
 
 
