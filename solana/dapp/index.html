@@ -23,11 +23,12 @@
   </head>
   <body>
     <div>
-      <h1>链接</h1>
+      <h1>链接Sol：最好切换到sol网络在进行链接</h1>
       <button data-method="connect">connect</button><span></span><span data-value="account">--</span>
     </div>
     <div>
       <h1>转账sol</h1>
+      <div>如何转账用户的代币地址没有创建，api创建用户地址 这里没有做创建地址</div>
       from:<input id="from" type="text" /> to:<input id="to" type="text" /> amount:<input id="amount" type="number" /> 代币contract：<input id="contract" value="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" type="text" />
       <button data-method="sendTranstion">sendTranstion</button>
     </div>
@@ -67,8 +68,9 @@
           if (this.isInstalled) {
             await window.solana.connect();
             this.state.address = window.solana.publicKey.toString();
+            document.querySelector("#from").value = this.state.address
             this.emit("connected", this.state.address);
-            return window.solana.publicKey.toString();
+            return this.state.address
           } else {
           }
         }
@@ -160,6 +162,7 @@
         const el = getValue("account");
         if (!el) return;
         el.innerText = account;
+        document.querySelector("#from").value = this.state.address
       });
 
       //ui btn click
