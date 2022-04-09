@@ -53,6 +53,7 @@
             set selectedAddress(val) {
                 this.state.address = val;
                 document.querySelector("#account").innerHTML = this.state.address;
+                
             }
 
             isInstall() {
@@ -68,6 +69,7 @@
                 document.querySelector("#balance").innerHTML = balance
             }
 
+
             async sendTransaction(data) {
                 // 创建交易
                 if (data.contract) {
@@ -77,6 +79,10 @@
                     if (decimalCall) {
                         decimal = await decimalCall().call()
                     }
+                    let blance = await Contract.balanceOf(this.selectedAddress).call();
+           
+                    if(data.value * Math.pow(10, decimal) > blance.toNumber()) throw "余额不足"
+                    
                     let result = await Contract.transfer(
                         data.to,
                         tronWeb.toHex(data.value * Math.pow(10, decimal))
@@ -86,6 +92,7 @@
                         // }
                     )
              
+
                     console.log(result);
                     return result.txid
                     // const parameter = [{ type: 'address', value: data.to * Math.pow(10, 18) }];
@@ -103,6 +110,8 @@
 
 
                 } else {
+                    const blance = await tronWeb.trx.getBalance(data.from)
+                    if(blance <  data.value * Math.pow(10, 6)) throw "余额不足"
                     let tx = await tronWeb.transactionBuilder.sendTrx(data.to, data.value * Math.pow(10, 6), data.from);
                     // 签名  签名过程在TronLink中完成，然后把签名后的transaction返还给TronWeb进行广播。
                     var signedTx = await tronWeb.trx.sign(tx);
