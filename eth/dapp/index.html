@@ -179,7 +179,7 @@
             const value = String(data.value * 10 ** Number(18));
 
             const result = Erc20APIContract.methods.transfer(data.to, value).send({ from: this.selectedAddress, value: 0 });
-            return result;
+            return result.transactionHash;
           } else {
             const result = await this.web3.eth.sendTransaction({
               from: data.from,
