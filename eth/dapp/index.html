@@ -8,6 +8,7 @@
     <script src="./js/web3.min.js"></script>
     <script src="./abi/erc20.js"></script>
     <script src="./abi/poolABI.js"></script>
+    <script src="./abi/DemoAbi.js"></script>
     <style>
       body > div {
         display: flex;
@@ -59,6 +60,13 @@
       <button data-method="sendMultTransaction">sendMultTransaction</button>
     </div>
 
+    <div>
+      <h1>合约地址调用ropsten合约地址</h1>
+      <input type="text" id="ropsten_contract_value" />
+      <button data-method="ropsten_contract_get">get</button>
+      <button data-method="ropsten_contract_set">set</button>
+    </div>
+
     <script type="module">
       function transfer16(val = 0) {
         val = isNaN(Number(val)) ? 1 : Number(val);
@@ -90,6 +98,10 @@
             // ht 0x6f7b49ea570a9aeb19d95dda6268fb35263561c2
             // error
             // multSendCotract: "0xB43a99281a63CB861F8C2ef8b0e0D3C74B74Dd3F", // 批量转账合约地址
+
+            ropsten: {
+              demo_cotract: "0x5bd946e4533ad00df7b03613004e572b7676160c", // ropsten测试合约地址
+            },
           };
         }
 
@@ -212,7 +224,7 @@
 
           // 第一种
           // call查询数据不上链  send上链需要fee   encodeABI 编译成进制码64位没有其他操作
-          MultContract.methods.multisendToken == MultContract.methods[0x0b66f3f5];
+          // MultContract.methods.multisendToken == MultContract.methods[0x0b66f3f5];
           const resultData = await MultContract.methods.multisendToken(contract || "0x000000000000000000000000000000000000bEEF", addresses, amounts).send({
             from: this.selectedAddress,
             // gas: "",
@@ -275,6 +287,15 @@
                 mltcontract: mltcontract,
               });
               alert(sendMultTransactionTxid);
+              break;
+            case "ropsten_contract_set":
+            case "ropsten_contract_get":
+              const DemoContract = new wallet.web3.eth.Contract(DemoAbi, wallet._config.ropsten.demo_cotract, { from: wallet.selectedAddress });
+              if (method == "ropsten_contract_set") {
+                await DemoContract.methods.set(document.querySelector("#ropsten_contract_value").value || 0).send({ from: wallet.selectedAddress });
+              } else {
+                document.querySelector("#ropsten_contract_value").value = await DemoContract.methods.get().call();
+              }
               break;
           }
         };

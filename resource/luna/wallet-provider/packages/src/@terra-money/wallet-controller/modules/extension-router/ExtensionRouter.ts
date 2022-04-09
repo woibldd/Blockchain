@@ -296,7 +296,7 @@ export class ExtensionRouter {
   // ---------------------------------------------
   private createConnector = (extensionInfo: ExtensionInfo) => {
     this._connector?.close();
-    debugger
+    
     if (!extensionInfo.connector && !this.isDesktopChrome) {
       throw new Error(
         `[ExtensionRouter] Legacy extension only support the desktop chrome`,
