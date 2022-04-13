@@ -68,9 +68,9 @@
           if (this.isInstalled) {
             await window.solana.connect();
             this.state.address = window.solana.publicKey.toString();
-            document.querySelector("#from").value = this.state.address
+            document.querySelector("#from").value = this.state.address;
             this.emit("connected", this.state.address);
-            return this.state.address
+            return this.state.address;
           } else {
           }
         }
@@ -110,22 +110,44 @@
         async signTransaction(data) {
           // http://cw.hubwiz.com/card/c/solana-rpc-api/1/1/42/ rpc文档
           // https://cloud.tencent.com/developer/ask/sof/813394 主链币转
-          // https://cloud.tencent.com/developer/ask/sof/384734 代币转账
+          // https://cloud.tencent.com/developer/ask/sof/384734
+          //https://github.com/solana-labs/solana-program-library/blob/master/token/js/examples/create_mint_and_transfer_tokens.ts 代币转账
           let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl(solana.network), "confirmed");
 
-          // let WalletPublick = window.solana.publicKey;
+          let FromWallet = window.solana.publicKey;
           let fromPublicKey = new solanaWeb3.PublicKey(data.from);
           let toPublicKey = new solanaWeb3.PublicKey(data.to);
 
           let transaction = new solanaWeb3.Transaction();
           try {
             if (data.contract) {
+             
               let TokenPublicKey = new solanaWeb3.PublicKey(data.contract); //代币合约的PublicKey
+                 // Create new token mint
               let TokenInstance = new splToken.Token(connection, TokenPublicKey, splToken.TOKEN_PROGRAM_ID, fromPublicKey);
+              debugger
+              const {  getOrCreateAssociatedTokenAccount, getOrCreateAssociatedAccountInfo,  mintTo, transfer } = TokenInstance
+       
+              // const mint = await createMint(connection, fromPublicKey, fromPublicKey, null, 9);
+              // Get the token account of the fromWallet address, and if it does not exist, create it
+              let fromTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(connection, FromWallet, TokenInstance, fromPublicKey); //用户实际转账代币合约的PublicKey
+              // Get the token account of the toWallet address, and if it does not exist, create it
+              const toTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(connection, FromWallet, TokenInstance, toPublicKey);
+
+              // Mint 1 new token to the "fromTokenAccount" account we just created
+              let signature = await mintTo(connection, fromWallet, mint, fromTokenAccount.address, fromPublicKey, 1000000000, []);
+              console.log("mint tx:", signature);
+              // Transfer the new token to the "toTokenAccount" we just created
+              signature = await transfer(connection, fromWallet, fromTokenAccount.address, toTokenAccount.address, fromPublicKey, 1000000000, []);
+
+              console.log("transfer tx:", signature);
+              return;
+              // let TokenPublicKey = new solanaWeb3.PublicKey(data.contract); //代币合约的PublicKey
+              // let TokenInstance = new splToken.Token(connection, TokenPublicKey, splToken.TOKEN_PROGRAM_ID, fromPublicKey);
               //如果不存在请根据api创建用户地址 这里没有做创建地址
-              let fromTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(fromPublicKey); //用户实际转账代币合约的PublicKey
-              let toTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(toPublicKey); //用户实际转账代币合约的PublicKey
-              transaction.add(splToken.Token.createTransferInstruction(splToken.TOKEN_PROGRAM_ID, fromTokenAccount.address, toTokenAccount.address, fromPublicKey, [], data.value * 1e6));
+              // let fromTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(fromPublicKey); //用户实际转账代币合约的PublicKey
+              // let toTokenAccount = await TokenInstance.getOrCreateAssociatedAccountInfo(toPublicKey); //用户实际转账代币合约的PublicKey
+              // transaction.add(splToken.Token.createTransferInstruction(splToken.TOKEN_PROGRAM_ID, fromTokenAccount.address, toTokenAccount.address, fromPublicKey, [], data.value * 1e6));
             } else {
               transaction.add(
                 solanaWeb3.SystemProgram.transfer({
@@ -162,7 +184,7 @@
         const el = getValue("account");
         if (!el) return;
         el.innerText = account;
-        document.querySelector("#from").value = this.state.address
+        document.querySelector("#from").value = this.state.address;
       });
 
       //ui btn click

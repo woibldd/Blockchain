@@ -18,7 +18,7 @@
  *
  */
 
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
@@ -40,7 +40,7 @@ module.exports = {
     // You should run a client (like ganache-cli, geth or parity) in a separate terminal
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
-    
+
     //  默认本地节点发布地址是当前默认生成的助记词
     // development: {
     //   host: "127.0.0.1",     // Localhost (default: none)
@@ -58,15 +58,35 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
-  
+
     ropsten: {
-        provider: () => new HDWalletProvider("助记词或者私钥地址", `https://ropsten.infura.io/v3/自己申请的projectId`),  // 申请地址 https://infura.io/dashboard
-        network_id: 3,       // Ropsten's id
-        gas: 5500000,        // Ropsten has a lower block limit than mainnet
-        confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-        timeoutBlocks: 100000,  // # of blocks before a deployment times out  (minimum/default: 50)
-        skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      provider: () => new HDWalletProvider("6893106dcda86ea2b019068f0d3a3d8f8d1dd0140f7466d60782a2b7ea06b539", `https://ropsten.infura.io/v3/77ac112521ff4839ae51f4e551f4b5eb`), // 申请地址 https://infura.io/dashboard
+      // provider: () => new HDWalletProvider("助记词或者私钥地址", `https://ropsten.infura.io/v3/自己申请的projectId`),  // 申请地址 https://infura.io/dashboard
+      network_id: 3, // Ropsten's id
+      gas: 5500000, // Ropsten has a lower block limit than mainnet
+      confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 100000, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
     },
+    bscText: {
+
+      provider: () => new HDWalletProvider("助记词或者私钥地址", `https://ropsten.infura.io/v3/自己申请的projectId`),  // 申请地址 https://infura.io/dashboard
+      network_id: 97, // Ropsten's id
+      gas: 5500000, // Ropsten has a lower block limit than mainnet
+      confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 100000, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
+    },
+    Heco: {
+
+      provider: () => new HDWalletProvider("助记词或者私钥地址", `https://ropsten.infura.io/v3/自己申请的projectId`),  // 申请地址 https://infura.io/dashboard
+      network_id: 128, // Ropsten's id
+      gas: 5500000, // Ropsten has a lower block limit than mainnet
+      confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 100000, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
+    },
+    
     // Useful for private networks
     // private: {
     //   provider: () => new HDWalletProvider("6893106dcda86ea2b019068f0d3a3d8f8d1dd0140f7466d60782a2b7ea06b539", `https://ropsten.infura.io/v3`),
@@ -83,8 +103,8 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      // version: "0.5.1",    // Fetch exact version from solc-bin (default: truffle's version)
-      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
+      version: "0.8.8", // Fetch exact version from solc-bin (default: truffle's version)
+      docker: true, // Use "0.5.1" you've installed locally with docker (default: false) 版本问题太恶心所以我安装了docker
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
       //    enabled: false,
@@ -92,7 +112,7 @@ module.exports = {
       //  },
       //  evmVersion: "byzantium"
       // }
-    }
+    },
   },
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
@@ -102,17 +122,17 @@ module.exports = {
   // NOTE: It is not possible to migrate your contracts to truffle DB and you should
   // make a backup of your artifacts to a safe location before enabling this feature.
   //
-  // After you backed up your artifacts you can utilize db by running migrate as follows: 
+  // After you backed up your artifacts you can utilize db by running migrate as follows:
   // $ truffle migrate --reset --compile-all
   //
   // db: {
-    // enabled: false,
-    // host: "127.0.0.1",
-    // adapter: {
-    //   name: "sqlite",
-    //   settings: {
-    //     directory: ".db"
-    //   }
-    // }
+  // enabled: false,
+  // host: "127.0.0.1",
+  // adapter: {
+  //   name: "sqlite",
+  //   settings: {
+  //     directory: ".db"
+  //   }
+  // }
   // }
 };

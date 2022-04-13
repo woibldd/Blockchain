@@ -1,6 +1,0 @@
-# pack-refs with: peeled fully-peeled sorted 
-f01481d0ab0f77fd3a9c96202d520cf172274586 refs/remotes/origin/dependabot/npm_and_yarn/minimist-1.2.6
-9b42e8a9c2ca9af3c92391c9b46b963a58ddb28d refs/remotes/origin/dependabot/npm_and_yarn/nanoid-3.3.2
-6742583133cfcc47176265e7e66e26934c2c602f refs/remotes/origin/dependabot/npm_and_yarn/url-parse-1.5.10
-5bff6a13d3b5bfee63dac209bbf8941337777f96 refs/remotes/origin/feature/template-with-docs-etc
-d1b0745ffcfe33f8b2f951063a3ca7318b94b090 refs/remotes/origin/main

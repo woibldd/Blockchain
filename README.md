@@ -16,7 +16,8 @@ Blockchain 区块链学习
     2. bitkeep切换到solana网络 
     3. 代币转账暂时不支持创建账户，只支持已经存在代币地址的账户（在链上已经有过资产的代币）
 
-
+#truffle-solidity
+ ``` 合约开发
   
 
 
@@ -24,6 +25,11 @@ Blockchain 区块链学习
 
 #resource
   https://gitcode.net/mirrors/mokeychan/etherumForeverWords?utm_source=csdn_github_accelerator
+
+  apeswap-frontend
+    需要auth_token
+
+  export NPM_TOKEN='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'
 
    
 
